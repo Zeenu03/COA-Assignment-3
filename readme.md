@@ -36,6 +36,21 @@
 - The two 16-bit numbers are stored in memory locations `num1` and `num2`.
 - The result of the subtraction will be stored in memory location `result`.
 
+#### C Program
+```c
+int main() {
+    // Define 16-bit integers
+    int16_t num1 = 70;  // First number
+    int16_t num2 = 18;  // Second number
+    int16_t result;     // Variable to hold the result
+
+    // Perform subtraction using two's complement
+    // result = num1 - num2
+    result = num1 + (~num2 + 1); // Two's complement of num2 is obtained by inverting bits and adding 1
+    return 0; // Exit the program
+}
+```
+#### Assembly Program
 ```mips
 .data                   # Data section
 num1:  .half   70        # First 16-bit number 
@@ -72,7 +87,39 @@ main:
 - The 15 numbers are stored in consecutive memory locations starting from `base_address`.
 - Assume that we don't know the `mul` and `div` instruction for this specific problem.
 
+#### C Program
+```c
 
+int main() {
+    // Define the array of 15 integers
+    int base_address[15] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
+    int result = 0;      // Variable to store the result (average)
+    int sum = 0;         // Variable to store the sum
+    int count = 14;      // Number of elements in the array
+    
+    // Calculate the sum of the array
+    for (int i = count; i >= 0; i--) {
+        sum += base_address[i]; // Add each element to the sum
+    }
+
+    // Manual division of sum by 15 using repeated subtraction
+    int quotient = 0;  // Variable to store the quotient (average)
+    int divisor = count; // Divisor is 15 (number of elements)
+    int temp_sum = sum;  // Copy of sum for division process
+
+    // Repeated subtraction to calculate sum / 15
+    while (temp_sum >= divisor) {
+        temp_sum -= divisor; // Subtract divisor from temp_sum
+        quotient++;          // Increment quotient each time
+    }
+
+    // Store the final quotient as the result
+    result = quotient;
+    return 0; // Exit the program
+}
+```
+
+#### Assembly Program
 ```mips
 .data
 # Define the array of 15 integers
@@ -84,7 +131,7 @@ result:      .word 0          # Memory location to store the average
 main:
     lw $t0, base_adress  # Load the base address of the array into $t0
     lw $t1, 0            # Initialize sum to 0
-    lw $t2, 15           # Number of integers (15 numbers)
+    lw $t2, 14           # Number of integers (15 numbers)
     lw $t3, 0            # Initialize sum to 0
 
 loop:
@@ -123,6 +170,38 @@ end_div:
 - The two numbers are stored in memory locations `num1` and `num2`.
 - The LCM of the two numbers will be stored in memory location `lcm`.
 
+#### C Program
+```c
+#include <stdio.h>
+
+// Function to calculate the GCD using the Euclidean algorithm
+int gcd(int a, int b) {
+    while (b != 0) {
+        int remainder = a % b; // Calculate the remainder
+        a = b;                 // Set a to b
+        b = remainder;         // Set b to the remainder
+    }
+    return a; // The GCD is stored in a
+}
+
+// Function to calculate the LCM using the formula: LCM(a, b) = (a * b) / GCD(a, b)
+int lcm(int a, int b) {
+    int gcd_value = gcd(a, b);  // Find the GCD of a and b
+    return (a * b) / gcd_value; // Calculate LCM
+}
+
+int main() {
+    // Define two numbers to find the LCM of
+    int num1 = 15;
+    int num2 = 20;
+
+    // Calculate the LCM of num1 and num2
+    int result = lcm(num1, num2);
+    return 0;
+}
+```
+
+#### Assembly Program
 ```mips
 .data
 number: .word 15, 20    # Two numbers to find the LCM of
@@ -174,6 +253,38 @@ gcd_done:
 - The two numbers are stored in memory locations `num1` and `num2`.
 - The result of the multiplication will be stored in memory location `result`.
 - We don't know the `mul` instruction for this specific problem.
+
+#### C Program
+```c
+int multiply(int a, int b) {
+    int product = 0; // Initialize product to 0
+
+    // Check if either number is zero
+    if (a == 0 || b == 0) {
+        return 0;
+    }
+
+    // Multiply by repeated addition
+    while (b > 0) {
+        product += a; // Add a to the product
+        b--;          // Decrement b by 1
+    }
+
+    return product; // Return the final product
+}
+
+int main() {
+    // Define two numbers to multiply
+    int num1 = 6;
+    int num2 = 7;
+
+    // Call the multiply function and store the result
+    int result = multiply(num1, num2);
+    return 0;
+}
+```
+
+#### Assembly Program
 ```mips
 .data
 numbers:    .word 6, 7    # Two numbers to multiply, e.g., 6 * 7
@@ -214,6 +325,57 @@ done:
 - The sorted list of 10 numbers is stored in memory locations `numbers`.
 - If we don't find the target number we don't need to store the number of iterations or the index in the respective memory locations.
 
+#### C Program
+```c
+// Binary search function
+int binary_search(int arr[], int size, int target, int* iterations) {
+    int low = 0;
+    int high = size - 1;
+    *iterations = 0;
+
+    while (low <= high) {
+        (*iterations)++; // Increment iteration count
+
+        int mid = (low + high) / 2; // Calculate mid index
+
+        if (arr[mid] == target) {
+            return mid; // Return the index where the target is found
+        }
+
+        if (arr[mid] < target) {
+            low = mid + 1; // Search in the right half
+        } else {
+            high = mid - 1; // Search in the left half
+        }
+    }
+
+    return -1; // Target not found
+}
+
+int main() {
+    int numbers[] = {2, 5, 7, 10, 12, 15, 18, 21, 23, 30}; // Sorted list of numbers
+    int target = 15; // Target number to search for
+    int iterations = 0; // To store the number of iterations
+    int index; // To store the result of binary search
+
+    int output[3]; // Array to store results: output[0] = found/not found, output[1] = iterations, output[2] = index
+
+    // Perform binary search
+    index = binary_search(numbers, 10, target, &iterations);
+
+    // Store the result (found/not found) in output[0]
+    if (index != -1) {
+        output[0] = 1;    // Found: output[0] = 1
+        output[1] = iterations; // Store the number of iterations in output[1]
+        output[2] = index;    // Store index in output[2]
+    } else {
+        output[0] = 2; // Not found: output[0] = 2
+    }
+    return 0;
+}
+```
+
+#### Assembly Program
 ```mips
 .data
 numbers:    .word 2, 5, 7, 10, 12, 15, 18, 21, 23, 30  # Sorted list of 10 numbers
@@ -304,7 +466,38 @@ not_found:
 - If we find the character, we store 1 in the output memory location and the index of the character in the next memory location.
 - Output memory location is `output`.
 
+#### C Program
+```c
 
+int main() {
+    // Define the string, target character, and output memory locations
+    char str[] = "Hello World";   // The string we are searching in
+    char target = 'W';            // The character we want to find
+    int output = 0;               // Output memory location, 1 if found, 2 if not found
+    int index = -1;               // Index of the found character (if found)
+
+    // Initialize the index counter
+    int i = 0;
+
+    // Loop to search for the target character
+    while (str[i] != '\0') {
+        if (str[i] == target) {   // If the target character is found
+            output = 1;           // Store 1 in the output memory location (found)
+            index = i;            // Store the index of the found character
+            break;
+        }
+        i++;                      // Increment the index
+    }
+
+    // If the target character is not found, store 2 in the output memory location
+    if (output == 0) {
+        output = 2;               // Not found
+    }
+    return 0;
+}
+```
+
+#### Assembly Program
 ```mips
 .data
 str:       .asciiz "Hello World"   # The string we are searching in
